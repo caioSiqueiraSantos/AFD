@@ -32,10 +32,13 @@ const AUTOMATA_PRESETS = {
       { text: "01", valid: true },
       { text: "101", valid: true },
       { text: "001", valid: true },
-      { text: "110101", valid: true },
-      { text: "100", valid: false },
-      { text: "010", valid: false },
-      { text: "111", valid: false }
+      { text: "1101", valid: true },
+      { text: "00001", valid: true },
+      { text: "0", valid: false },
+      { text: "1", valid: false },
+      { text: "10", valid: false },
+      { text: "11", valid: false },
+      { text: "100", valid: false }
     ]
   },
 
@@ -554,10 +557,10 @@ function finishSimulation() {
   const stateLabel = getStateLabel(currentState);
 
   if (isAccepted) {
-    setVerdict("accepted", "RESULTADO: CADEIA ACEITA", `O estado de parada ${stateLabel} pertence ao conjunto de estados finais F.`);
+    setVerdict("accepted", "RESULTADO: ACEITA", `O estado de parada ${stateLabel} pertence ao conjunto de estados de aceitação F.`);
     logMessage(`RESULTADO: Cadeia "${currentString}" ACEITA no estado ${stateLabel}.`, "ok");
   } else {
-    setVerdict("rejected", "RESULTADO: CADEIA REJEITADA", `O estado de parada ${stateLabel} NÃO pertence ao conjunto F.`);
+    setVerdict("rejected", "RESULTADO: REJEITA", `O estado de parada ${stateLabel} NÃO pertence ao conjunto F.`);
     logMessage(`RESULTADO: Cadeia "${currentString}" REJEITADA no estado ${stateLabel}.`, "fail");
   }
 
