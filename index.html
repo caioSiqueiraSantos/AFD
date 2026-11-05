@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Autômatos Finitos Determinísticos — Demonstração Acadêmica</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Barra de Título Superior Acadêmica -->
+  <div class="academic-header">
+    <div class="institution-title">Laboratório de Teoria da Computação e Linguagens Formais</div>
+    <div class="main-title">Simulador Didático de Autômatos Finitos Determinísticos (AFD)</div>
+    <div class="academic-meta">Modelo Formal de Reconhecimento de Linguagens Regulares &bull; Versão 1.0 (2000)</div>
+  </div>
+
+  <div class="container">
+    
+    <!-- Barra de Configuração e Seleção de Modelo -->
+    <fieldset class="panel config-panel">
+      <legend>Configuração do Autômato</legend>
+      <div class="config-row">
+        <label for="automatonSelect"><strong>Modelo Formal / Linguagem Alvo:</strong></label>
+        <select id="automatonSelect">
+          <option value="ends01">M₁: Reconhecedor de cadeias terminadas em "01" (L₁)</option>
+          <option value="mod3">M₂: Reconhecedor de binários múltiplos de 3 (L₂)</option>
+          <option value="evenZeros">M₃: Reconhecedor de paridade de zeros (L₃)</option>
+        </select>
+        <span class="alphabet-info" id="alphabetBadge">&Sigma; = {0, 1}</span>
+      </div>
+    </fieldset>
+
+    <!-- Especificação Formal da 5-Tupla -->
+    <fieldset class="panel">
+      <legend>Especificação Matemática do Autômato: M = (Q, &Sigma;, &delta;, q₀, F)</legend>
+      <table class="tuple-table" id="tupleTable">
+        <!-- Preenchido via JS -->
+      </table>
+    </fieldset>
+
+    <!-- Área de Demonstração Visual e Controles -->
+    <div class="workbench-grid">
+
+      <!-- Coluna da Esquerda: Grafo de Estados e Fita de Leitura -->
+      <div class="left-column">
+        <fieldset class="panel">
+          <legend>Diagrama de Transições de Estados (Grafo Dirigido)</legend>
+          <div class="svg-container">
+            <svg id="dfaSvg" viewBox="0 0 740 340" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <!-- Seta padrão preta acadêmica -->
+                <marker id="arrow" viewBox="0 0 10 10" refX="21" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000" />
+                </marker>
+                <!-- Seta ativa -->
+                <marker id="arrowActive" viewBox="0 0 10 10" refX="21" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0000aa" />
+                </marker>
+                <!-- Seta de entrada inicial -->
+                <marker id="arrowStart" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000" />
+                </marker>
+              </defs>
+              <g id="transitionsLayer"></g>
+              <g id="statesLayer"></g>
+            </svg>
+          </div>
+          <div class="diagram-notes">
+            Nota: Círculos duplos denotam estados de aceitação ($F$). A seta 'início' demarca o estado inicial ($q_0$).
+          </div>
+        </fieldset>
+
+        <!-- Fita de Leitura de Símbolos -->
+        <fieldset class="panel tape-panel">
+          <legend>Fita de Leitura de Entrada (Unidade de Controle)</legend>
+          <div class="tape-outer">
+            <div class="tape-label-fixed">Cabeçote &rarr;</div>
+            <div class="tape-strip" id="tapeCells">
+              <!-- Células geradas dinamicamente -->
+            </div>
+          </div>
+          <div class="tape-index-status" id="tapeStatus">Posição do ponteiro: 0</div>
+        </fieldset>
+      </div>
+
+      <!-- Coluna da Direita: Controles, Tabela Delta e Veredito -->
+      <div class="right-column">
+        
+        <!-- Entrada de Dados e Controles de Simulação -->
+        <fieldset class="panel">
+          <legend>Simulação e Execução</legend>
+          
+          <div class="form-group">
+            <label for="inputString">Cadeia de entrada (w):</label>
+            <div class="input-line">
+              <input type="text" id="inputString" value="101" maxlength="32">
+              <button id="btnLoad" class="sys-btn">Carregar</button>
+            </div>
+          </div>
+
+          <div class="examples-section">
+            <span class="sub-label">Cadeias de teste pré-definidas:</span>
+            <div id="quickExamplesList" class="examples-list"></div>
+          </div>
+
+          <div class="action-buttons">
+            <button id="btnStep" class="sys-btn primary-btn">[ &Delta; Passo ]</button>
+            <button id="btnPlay" class="sys-btn">[ Executar ]</button>
+            <button id="btnReset" class="sys-btn">[ Reiniciar ]</button>
+          </div>
+
+          <div class="timing-control">
+            <label for="speedRange">Intervalo de transição:</label>
+            <input type="range" id="speedRange" min="200" max="1500" step="100" value="600">
+            <span id="speedValue">600 ms</span>
+          </div>
+        </fieldset>
+
+        <!-- Resultado do Reconhecimento -->
+        <fieldset class="panel result-panel" id="verdictBox">
+          <legend>Status de Reconhecimento</legend>
+          <div class="verdict-banner" id="verdictText">Aguardando execução</div>
+          <div class="verdict-subtext" id="verdictDetail">Carregue uma cadeia e acione a simulação.</div>
+        </fieldset>
+
+        <!-- Tabela de Transições Delta -->
+        <fieldset class="panel">
+          <legend>Tabela de Transições &delta;: Q &times; &Sigma; &rarr; Q</legend>
+          <div class="table-scroller">
+            <table class="delta-table" id="transitionTable">
+              <!-- Gerada dinamicamente -->
+            </table>
+          </div>
+        </fieldset>
+
+        <!-- Log Sequencial de Operação -->
+        <fieldset class="panel">
+          <legend>Registro de Transições (Rastreamento)</legend>
+          <div class="log-console" id="executionLog">
+            <div class="log-line">Sistema pronto. Autômato carregado.</div>
+          </div>
+          <div class="log-footer">
+            <button id="btnClearLog" class="link-btn">[limpar registro]</button>
+          </div>
+        </fieldset>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
